@@ -1,2 +1,5 @@
-# qmk
-My custom QMK configurations and firmware.
+# QMK Firmware & Config
+
+This repository contains code and configurations I've written to customize my
+mechanical keyboard(s).
+
