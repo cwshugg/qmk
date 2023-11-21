@@ -17,7 +17,11 @@ typedef enum __P(layer)
     // LAYER_4_GAMING_0, // TODO
     // ------------
     LAYER_COUNT        // Specifies the total number of defined layer enums
-} __P(layer_e)
+} __P(layer_e);
+
+// Function prototype that accepts a layer enum AND returns a string
+// representing the layer's name.
+char* __P(layer_to_string)(__P(layer_e) l);
 
 #endif
 
