@@ -14,7 +14,10 @@ typedef enum __P(layer)
     LAYER_1_LOWER,
     LAYER_2_RAISE,
     LAYER_3_SUPER,
-    // LAYER_4_GAMING_0, // TODO
+    LAYER_4_GAMING_0,
+    LAYER_5_GAMING_1,
+    LAYER_6_GAMING_2,
+    LAYER_7_GAMING_3,
     // ------------
     LAYER_COUNT        // Specifies the total number of defined layer enums
 } __P(layer_e);
