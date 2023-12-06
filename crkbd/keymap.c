@@ -5,6 +5,12 @@
 // Includes
 #include "defines.h"
 #include "layers.h"
+#include "td.h"
+
+// Tap-dance action assignments
+tap_dance_action_t tap_dance_actions[] = {
+    [TD_TG] = ACTION_TAP_DANCE_DOUBLE(KC_TAB, KC_GRAVE)
+};
 
 // Keymapping
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -45,7 +51,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     // +----------+----------+----------+----------+----------+----------+                     +----------+----------+----------+----------+----------+----------+ //
         KC_BSLS,   KC_HASH,   KC_QUOT,   KC_LBRC,   KC_RBRC,   KC_UNDS,                         KC_LEFT,   KC_DOWN,   KC_UP,     KC_RIGHT,  _______E,  _______E,
     // +----------+----------+----------+----------+----------+----------+                     +----------+----------+----------+----------+----------+----------+ //
-        KC_TILD,   KC_AT,     KC_CIRC,   KC_LCBR,   KC_RCBR,   KC_DLR,                          _______E,  KC_END,    KC_PGDN,   _______E,  _______E,  KC_CAPS,
+        KC_TILD,   KC_AT,     KC_CIRC,   KC_LCBR,   KC_RCBR,   KC_DLR,                          KC_LABK,   KC_END,    KC_PGDN,   KC_RABK,   _______E,  KC_CAPS,
     // +----------+----------+----------+----------+----------+----------+----------+----------+----------+----------+----------+----------+----------+----------+ //
                                          _______E,  MO(LAYER_3_SUPER),    KC_ENTER,  KC_SPC,    _______T,             _______E
     //                                  +----------+---------------------+----------+----------+---------------------+----------+
@@ -69,7 +75,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     // My first gaming layer. The layer is very similar to the default layer.
     [LAYER_4_GAMING_0] = LAYOUT_split_3x6_3(
     // +----------+----------+----------+----------+----------+----------+                     +----------+----------+----------+----------+----------+----------+ //
-        KC_TAB,    KC_Q,      KC_W,      KC_E,      KC_R,      KC_T,                            KC_Y,      KC_U,      KC_I,      KC_O,      KC_P,      KC_BSPC,
+        TD(TD_TG), KC_Q,      KC_W,      KC_E,      KC_R,      KC_T,                            KC_Y,      KC_U,      KC_I,      KC_O,      KC_P,      KC_BSPC,
     // +----------+----------+----------+----------+----------+----------+                     +----------+----------+----------+----------+----------+----------+ //
         KC_LCTL,   KC_A,      KC_S,      KC_D,      KC_F,      KC_G,                            KC_H,      KC_J,      KC_K,      KC_L,      KC_SCLN,   KC_DEL,
     // +----------+----------+----------+----------+----------+----------+                     +----------+----------+----------+----------+----------+----------+ //

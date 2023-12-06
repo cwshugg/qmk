@@ -17,3 +17,6 @@ OLED_DRIVER_ENABLE =    yes
 # Enable use of system and audio control keycodes
 EXTRAKEY_ENABLE =       yes
 
+# Enable use of tap dancing
+TAP_DANCE_ENABLE =      yes
+
