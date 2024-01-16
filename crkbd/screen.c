@@ -9,19 +9,22 @@
 #include "activity.h"
 
 // Globals
-static char __P(oled_keylog_str)[32] = {'\0'};
+static char __P(oled_keylog_pos_str)[8] = {'\0'};
+static char __P(oled_keylog_code_str)[8] = {'\0'};
 
 // Function prototypes (QMK uses -Werror=strict-prototypes) during compilation
 static void __P(oled_write_space)(void);
 static void __P(oled_write_separator)(void);
 static void __P(oled_write_header)(void);
 static void __P(oled_write_layer_name)(void);
-static void __P(oled_write_keylog)(void);
+static void __P(oled_write_keylog_position)(void);
+static void __P(oled_write_keylog_code)(void);
+static void __P(oled_write_mods)(void);
+static void __P(oled_write_art)(void);
 static bool __P(oled_primary_task_idle)(void);
 static bool __P(oled_secondary_task_idle)(void);
 static bool __P(oled_primary_task_alive)(void);
 static bool __P(oled_secondary_task_alive)(void);
-
 
 // ============================== OLED Helpers ============================== //
 // Writes an empty line to the OLED screen.
@@ -40,7 +43,7 @@ static void __P(oled_write_separator)()
 // of the screen.
 static void __P(oled_write_header)()
 {
-    oled_write("SHUGGCRKBD", false);
+    oled_write("ShuggCRKBD", false);
 }
 
 // Writes the current layer name to the OLED screen.
@@ -48,27 +51,58 @@ static void __P(oled_write_layer_name)()
 {
     __P(layer_e) layer = get_highest_layer(layer_state);
     const char* name = __P(layer_to_string)(layer);
-    oled_write("LAYER", false);
+    oled_write("Layer", false);
     oled_write(" ", false);
     oled_write(name, false);
     oled_write(" ", false);
 }
 
-// Writes the most recent keypress to the screen.
-static void __P(oled_write_keylog)(void)
+// Writes the latest keypress' position.
+static void __P(oled_write_keylog_position)()
 {
+    // build a string to show the latest keypress position
     keyrecord_t* r = __P(activity_keylog_get_record)();
-    uint16_t c = __P(activity_keylog_get_code)();
-
-    // build a strinng to represent each part of the keylog
-    snprintf(__P(oled_keylog_str), sizeof(__P(oled_keylog_str)),
-             "KEY-P" "R%d C%d" "KEY-C" "%05d",
+    snprintf(__P(oled_keylog_pos_str), sizeof(__P(oled_keylog_pos_str)),
+             "R%d C%d",
              r->event.key.row,
-             r->event.key.col,
-             c);
-    
-    // write the string to the screen
-    oled_write(__P(oled_keylog_str), false);
+             r->event.key.col);
+
+    // write out to the string
+    oled_write("Key-P", false);
+    oled_write(__P(oled_keylog_pos_str), false);
+}
+
+// Writes the latest keypress' code.
+static void __P(oled_write_keylog_code)()
+{
+    // build a string to show the latest keypress code
+    uint16_t c = __P(activity_keylog_get_code)();
+    snprintf(__P(oled_keylog_code_str), sizeof(__P(oled_keylog_code_str)),
+             "%05d", c);
+
+    oled_write("Key-C", false);
+    oled_write(__P(oled_keylog_code_str), false);
+}
+
+// Writes the current modifier keys that are pressed.
+static void __P(oled_write_mods)()
+{
+    // get a bitmap of the currently active modifier keys
+    uint8_t mods = get_mods();
+    uint8_t mod_ctl = mods & MOD_MASK_CTRL;
+    uint8_t mod_alt = mods & MOD_MASK_ALT;
+    uint8_t mod_sft = mods & MOD_MASK_SHIFT;
+    uint8_t mod_os = mods & MOD_MASK_GUI;
+    // write the modifier key states
+    oled_write(mod_ctl ? " CTL " : "     ", mod_ctl);
+    oled_write(mod_alt ? " ALT " : "     ", mod_alt);
+    oled_write(mod_sft ? " SFT " : "     ", mod_sft);
+    oled_write(mod_os ?  " OS  " : "     ", mod_os);
+}
+
+static void __P(oled_write_art)()
+{
+    // TODO - use oled_write_pixel to draw something cool, depending on the layer
 }
 
 // Performs OLED rendering for the primary screen while the keyboard is in the
@@ -76,6 +110,7 @@ static void __P(oled_write_keylog)(void)
 static bool __P(oled_primary_task_idle)()
 {
     oled_clear();
+
     __P(oled_write_header)();
     return false;
 }
@@ -85,7 +120,19 @@ static bool __P(oled_primary_task_idle)()
 static bool __P(oled_secondary_task_idle)()
 {
     oled_clear();
-    __P(oled_write_header)();
+
+    // draw a little "idling" animation
+    uint32_t timer = __P(activity_timer_get)();
+    uint32_t tval = timer % 1000;
+    if (tval < 250)
+    { oled_write("|   |", false); }
+    else if (tval >= 250 && tval < 500)
+    { oled_write("/   \\", false); }
+    else if (tval >= 500 && tval < 750)
+    { oled_write("-   -", false); }
+    else if (tval >= 750 && tval < 1000)
+    { oled_write("\\   /", false); }
+
     return false;
 }
 
@@ -96,12 +143,13 @@ static bool __P(oled_primary_task_alive)()
     __P(oled_write_header)();
     __P(oled_write_separator)();
     __P(oled_write_space)();
+
     __P(oled_write_layer_name)();
-    __P(oled_write_separator)();
     __P(oled_write_space)();
-    __P(oled_write_keylog)();
-    __P(oled_write_separator)();
+
+    __P(oled_write_keylog_position)();
     __P(oled_write_space)();
+    __P(oled_write_keylog_code)();
     return false;
 }
 
@@ -109,15 +157,9 @@ static bool __P(oled_primary_task_alive)()
 // active.
 static bool __P(oled_secondary_task_alive)()
 {
-    __P(oled_write_header)();
-    __P(oled_write_separator)();
+    __P(oled_write_mods)();
     __P(oled_write_space)();
-    __P(oled_write_layer_name)();
-    __P(oled_write_separator)();
-    __P(oled_write_space)();
-    __P(oled_write_keylog)();
-    __P(oled_write_separator)();
-    __P(oled_write_space)();
+    __P(oled_write_art)();
     return false;
 }
 
@@ -128,7 +170,8 @@ static bool __P(oled_secondary_task_alive)()
 oled_rotation_t oled_init_user(oled_rotation_t r)
 {
     // zero out the keylog string
-    memset(__P(oled_keylog_str), 0, sizeof(__P(oled_keylog_str)));
+    memset(__P(oled_keylog_pos_str), 0, sizeof(__P(oled_keylog_pos_str)));
+    memset(__P(oled_keylog_code_str), 0, sizeof(__P(oled_keylog_code_str)));
 
     // rotate both screens 270 degrees so they face the user
     return OLED_ROTATION_270;

@@ -67,6 +67,16 @@ uint32_t __P(activity_timer_get)()
     return timer_elapsed32(__P(activity_timer));
 }
 
+uint32_t __P(activity_timer_get_raw)()
+{
+    return __P(activity_timer);
+}
+
+void __P(activity_timer_set_raw)(uint32_t value)
+{
+    __P(activity_timer) = value;
+}
+
 
 // =========================== Firmware Overrides =========================== //
 // Function supported by QMK that allows user code to process keyboard events,

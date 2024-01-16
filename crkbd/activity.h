@@ -46,8 +46,14 @@ __P(activity_state_e) __P(activity_state_refresh)(void);
 // Updates the activity timer's value to be current.
 void __P(activity_timer_refresh)(void);
 
-// Returns the current activity timer's value.
+// Returns the activity timer's current time since it was last checked.
 uint32_t __P(activity_timer_get)(void);
+
+// Returns the activity timer's raw value.
+uint32_t __P(activity_timer_get_raw)(void);
+
+// Sets the activity timer's raw value.
+void __P(activity_timer_set_raw)(uint32_t value);
 
 #endif
 

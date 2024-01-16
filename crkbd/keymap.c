@@ -6,6 +6,7 @@
 #include "defines.h"
 #include "layers.h"
 #include "td.h"
+#include "sync.h"
 
 // Tap-dance action assignments
 tap_dance_action_t tap_dance_actions[] = {
@@ -129,4 +130,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     //                                  +----------+---------------------+----------+----------+---------------------+----------+
     )
 };
+
+// Initialization function.
+void keyboard_post_init_user()
+{
+    __P(sync_init)();
+}
 

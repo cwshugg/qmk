@@ -1,13 +1,16 @@
 # This defines compile-time rules for the QMK firmware.
 
 # Include extra source files in compilation
-SRC += layers.c screen.c activity.c
+SRC += layers.c screen.c activity.c sync.c
 
 # Use DFU Bootlader for Elite-C
 BOOTLOADER =            atmel-dfu
 
 # Enable Link-Time Optimization
 LTO_ENABLE =            yes
+
+# Enable split keyboard features
+SPLIT_KEYBOARD =        yes
 
 # Enable OLED screen
 OLED_ENABLE	=           yes
