@@ -9,6 +9,7 @@ static uint32_t __P(activity_timer) = 0;
 static __P(activity_state_e) __P(activity_state) = ACTIVITY_STATE_ALIVE;
 static keyrecord_t __P(activity_keylog_latest_record);
 static uint16_t __P(activity_keylog_latest_keycode);
+static uint8_t __P(activity_capslock_flag) = 0;
 
 // ============================ Activity Keylog ============================= //
 void __P(activity_keylog_update)(uint16_t keycode, keyrecord_t* record)
@@ -59,12 +60,19 @@ __P(activity_state_e) __P(activity_state_refresh)()
 // ============================= Activity Timer ============================= //
 void __P(activity_timer_refresh)()
 {
-    __P(activity_timer) = timer_read32();
+    // only the master updates the activity timer; the secondary side of the
+    // keyboard syncs with the master side to retrieve its value
+    if (is_keyboard_master())
+    { __P(activity_timer) = timer_read32(); }
 }
 
 uint32_t __P(activity_timer_get)()
 {
-    return timer_elapsed32(__P(activity_timer));
+    // only the master calculates the elapsed time; the secondary side receives
+    // this value pre-calculated, so should return it as-is
+    if (is_keyboard_master())
+    { return timer_elapsed32(__P(activity_timer)); }
+    return __P(activity_timer);
 }
 
 uint32_t __P(activity_timer_get_raw)()
@@ -78,6 +86,25 @@ void __P(activity_timer_set_raw)(uint32_t value)
 }
 
 
+// =========================== Caps Lock Tracking =========================== //
+void __P(activity_capslock_set)(uint8_t enabled)
+{
+    __P(activity_capslock_flag) = !!enabled;
+}
+
+uint8_t __P(activity_capslock_get)()
+{
+    return !!__P(activity_capslock_flag);
+}
+
+uint8_t __P(activity_capslock_toggle)()
+{
+    // flip the flag and return
+    __P(activity_capslock_flag) = !__P(activity_capslock_flag);
+    return __P(activity_capslock_flag);
+}
+
+
 // =========================== Firmware Overrides =========================== //
 // Function supported by QMK that allows user code to process keyboard events,
 // such as keypresses.
@@ -88,6 +115,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record)
     {
         __P(activity_timer_refresh)();
         __P(activity_keylog_update)(keycode, record);
+
+        // if the caps lock key was pressed, update the internal state
+        if (keycode == KC_CAPS)
+        { __P(activity_capslock_toggle)(); }
     }
 
     return true;

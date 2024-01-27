@@ -55,5 +55,17 @@ uint32_t __P(activity_timer_get_raw)(void);
 // Sets the activity timer's raw value.
 void __P(activity_timer_set_raw)(uint32_t value);
 
+// =========================== Caps Lock Tracking =========================== //
+// Takes in a flag (0 for false, non-zero for true) indicating the current
+// state of the caps lock. This stores the given value in a global variable.
+void __P(activity_capslock_set)(uint8_t enabled);
+
+// Returns non-zero if the global state of the caps lock key indicates that
+// caps lock is enabled. Returns zero otherwise.
+uint8_t __P(activity_capslock_get)(void);
+
+// Flips the internal caps lock state and returns its new value.
+uint8_t __P(activity_capslock_toggle)(void);
+
 #endif
 

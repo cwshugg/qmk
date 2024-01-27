@@ -14,7 +14,7 @@ static char __P(oled_keylog_code_str)[8] = {'\0'};
 
 // Function prototypes (QMK uses -Werror=strict-prototypes) during compilation
 static void __P(oled_write_space)(void);
-static void __P(oled_write_separator)(void);
+static void __P(oled_write_separator)(char character);
 static void __P(oled_write_header)(void);
 static void __P(oled_write_layer_name)(void);
 static void __P(oled_write_keylog_position)(void);
@@ -34,16 +34,32 @@ static void __P(oled_write_space)()
 }
 
 // Writes a line containing all dashes ("-") to the OLED screen.
-static void __P(oled_write_separator)()
+static void __P(oled_write_separator)(char character)
 {
-    oled_write("-----", false);
+    // by default (character=0), use dashes
+    if (character == 0)
+    {
+        oled_write("-----", false);
+    }
+    else
+    {
+        char str[6];
+        snprintf(str, 6, "%c%c%c%c%c",
+                 character,
+                 character,
+                 character,
+                 character,
+                 character);
+
+        oled_write(str, false);
+    }
 }
 
 // Writes a small header string to the OLED string. The header goes at the top
 // of the screen.
 static void __P(oled_write_header)()
 {
-    oled_write("ShuggCRKBD", false);
+    oled_write("SHUGGCRKBD", false);
 }
 
 // Writes the current layer name to the OLED screen.
@@ -52,6 +68,7 @@ static void __P(oled_write_layer_name)()
     __P(layer_e) layer = get_highest_layer(layer_state);
     const char* name = __P(layer_to_string)(layer);
     oled_write("Layer", false);
+    __P(oled_write_separator)(0);
     oled_write(" ", false);
     oled_write(name, false);
     oled_write(" ", false);
@@ -69,6 +86,7 @@ static void __P(oled_write_keylog_position)()
 
     // write out to the string
     oled_write("Key-P", false);
+    __P(oled_write_separator)(0);
     oled_write(__P(oled_keylog_pos_str), false);
 }
 
@@ -81,6 +99,7 @@ static void __P(oled_write_keylog_code)()
              "%05d", c);
 
     oled_write("Key-C", false);
+    __P(oled_write_separator)(0);
     oled_write(__P(oled_keylog_code_str), false);
 }
 
@@ -93,16 +112,32 @@ static void __P(oled_write_mods)()
     uint8_t mod_alt = mods & MOD_MASK_ALT;
     uint8_t mod_sft = mods & MOD_MASK_SHIFT;
     uint8_t mod_os = mods & MOD_MASK_GUI;
+    uint8_t mod_caps = __P(activity_capslock_get)();
     // write the modifier key states
-    oled_write(mod_ctl ? " CTL " : "     ", mod_ctl);
-    oled_write(mod_alt ? " ALT " : "     ", mod_alt);
-    oled_write(mod_sft ? " SFT " : "     ", mod_sft);
-    oled_write(mod_os ?  " OS  " : "     ", mod_os);
+    oled_write(mod_ctl ?  " CTL " : "     ", mod_ctl);
+    oled_write(mod_alt ?  " ALT " : "     ", mod_alt);
+    oled_write(mod_sft ?  " SFT " : "     ", mod_sft);
+    oled_write(mod_os ?   " OS  " : "     ", mod_os);
+    oled_write(mod_caps ? " CAP " : "     ", mod_caps);
 }
 
 static void __P(oled_write_art)()
 {
-    // TODO - use oled_write_pixel to draw something cool, depending on the layer
+    // if the current layer is one of the gaming layers, draw gaming art
+    __P(layer_e) layer = get_highest_layer(layer_state);
+    if (layer >= LAYER_4_GAMING_0 && layer <= LAYER_7_GAMING_3)
+    {
+        // TODO - fix this - currently not displaying on right screen
+        oled_write(" .^. ", false);
+        oled_write(" | | ", false);
+        oled_write(" | | ", false);
+        oled_write(" | | ", false);
+        oled_write(" | | ", false);
+        oled_write(" | | ", false);
+        oled_write("=====", false);
+        oled_write("  #  ", false);
+        oled_write("  #  ", false);
+    }
 }
 
 // Performs OLED rendering for the primary screen while the keyboard is in the
@@ -141,7 +176,7 @@ static bool __P(oled_secondary_task_idle)()
 static bool __P(oled_primary_task_alive)()
 {
     __P(oled_write_header)();
-    __P(oled_write_separator)();
+    __P(oled_write_separator)('=');
     __P(oled_write_space)();
 
     __P(oled_write_layer_name)();

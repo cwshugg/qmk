@@ -8,7 +8,7 @@
 // keyboard halves, combined with a global "sync rate", which defines the
 // number of milliseconds that must occur between syncs.
 static uint32_t __P(sync_timer) = 0;
-static uint32_t __P(sync_rate) = 125;
+static uint32_t __P(sync_rate) = 250;
 
 // This is an overridden version of QMK's housekeeping function. It's
 // recommended that data synchronization between the primary and secondary
@@ -25,7 +25,8 @@ void housekeeping_task_user()
 
             // fill in the input data's values
             data_in.mods = get_mods();
-            data_in.activity_timer = __P(activity_timer_get_raw)();
+            data_in.activity_timer = __P(activity_timer_get)();
+            data_in.flags.capslock_enabled = __P(activity_capslock_get)();
 
             // send the transaction
             if (transaction_rpc_exec(CWSHUGG_CRKBD_SYNC_TRANSACTION_UPDATE,
@@ -63,5 +64,8 @@ void __P(sync_transaction_p2s_update)(uint8_t in_len, const void* in_data,
     // take the modifier key bitmap from the primary side and override the
     // secondary side's to mirror it
     set_mods(data->mods);
+    
+    // interpret the flags
+    __P(activity_capslock_set)(data->flags.capslock_enabled);
 }
 
