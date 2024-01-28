@@ -8,6 +8,7 @@
 // Includes
 #include QMK_KEYBOARD_H
 #include "defines.h"
+#include "layers.h"
 
 
 // ============================ Activity Keylog ============================= //
@@ -55,6 +56,7 @@ uint32_t __P(activity_timer_get_raw)(void);
 // Sets the activity timer's raw value.
 void __P(activity_timer_set_raw)(uint32_t value);
 
+
 // =========================== Caps Lock Tracking =========================== //
 // Takes in a flag (0 for false, non-zero for true) indicating the current
 // state of the caps lock. This stores the given value in a global variable.
@@ -66,6 +68,19 @@ uint8_t __P(activity_capslock_get)(void);
 
 // Flips the internal caps lock state and returns its new value.
 uint8_t __P(activity_capslock_toggle)(void);
+
+
+// ============================= Layer Tracking ============================= //
+// Invokes QMK layer-retrieving code to retrieve and store the current layer
+// state. Returns the current layer value.
+__P(layer_e) __P(activity_layer_refresh)(void);
+
+// Sets the internal layer state to the given layer value.
+void __P(activity_layer_set)(__P(layer_e) layer);
+
+// Returns the current internal layer state.
+__P(layer_e) __P(activity_layer_get)(void);
+
 
 #endif
 

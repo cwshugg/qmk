@@ -65,7 +65,7 @@ static void __P(oled_write_header)()
 // Writes the current layer name to the OLED screen.
 static void __P(oled_write_layer_name)()
 {
-    __P(layer_e) layer = get_highest_layer(layer_state);
+    __P(layer_e) layer = __P(activity_layer_refresh)();
     const char* name = __P(layer_to_string)(layer);
     oled_write("Layer", false);
     __P(oled_write_separator)(0);
@@ -124,7 +124,7 @@ static void __P(oled_write_mods)()
 static void __P(oled_write_art)()
 {
     // if the current layer is one of the gaming layers, draw gaming art
-    __P(layer_e) layer = get_highest_layer(layer_state);
+    __P(layer_e) layer = __P(activity_layer_refresh)();
     if (layer >= LAYER_4_GAMING_0 && layer <= LAYER_7_GAMING_3)
     {
         // TODO - fix this - currently not displaying on right screen
@@ -192,6 +192,8 @@ static bool __P(oled_primary_task_alive)()
 // active.
 static bool __P(oled_secondary_task_alive)()
 {
+    oled_clear();
+
     __P(oled_write_mods)();
     __P(oled_write_space)();
     __P(oled_write_art)();

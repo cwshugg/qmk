@@ -26,7 +26,8 @@ void housekeeping_task_user()
             // fill in the input data's values
             data_in.mods = get_mods();
             data_in.activity_timer = __P(activity_timer_get)();
-            data_in.flags.capslock_enabled = __P(activity_capslock_get)();
+            data_in.data.capslock_enabled = __P(activity_capslock_get)();
+            data_in.data.layer = ((uint8_t) __P(activity_layer_get)()) & 0xf;
 
             // send the transaction
             if (transaction_rpc_exec(CWSHUGG_CRKBD_SYNC_TRANSACTION_UPDATE,
@@ -65,7 +66,8 @@ void __P(sync_transaction_p2s_update)(uint8_t in_len, const void* in_data,
     // secondary side's to mirror it
     set_mods(data->mods);
     
-    // interpret the flags
-    __P(activity_capslock_set)(data->flags.capslock_enabled);
+    // interpret the flags/data struct
+    __P(activity_capslock_set)(data->data.capslock_enabled);
+    __P(activity_layer_set)((__P(layer_e)) data->data.layer);
 }
 

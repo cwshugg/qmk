@@ -10,6 +10,7 @@ static __P(activity_state_e) __P(activity_state) = ACTIVITY_STATE_ALIVE;
 static keyrecord_t __P(activity_keylog_latest_record);
 static uint16_t __P(activity_keylog_latest_keycode);
 static uint8_t __P(activity_capslock_flag) = 0;
+static __P(layer_e) __P(activity_layer) = LAYER_0_DEFAULT;
 
 // ============================ Activity Keylog ============================= //
 void __P(activity_keylog_update)(uint16_t keycode, keyrecord_t* record)
@@ -102,6 +103,27 @@ uint8_t __P(activity_capslock_toggle)()
     // flip the flag and return
     __P(activity_capslock_flag) = !__P(activity_capslock_flag);
     return __P(activity_capslock_flag);
+}
+
+
+// ============================= Layer Tracking ============================= //
+__P(layer_e) __P(activity_layer_refresh)()
+{
+    // only the master side refreshes the active layer; the secondary side
+    // syncs with the master sidie's value
+    if (is_keyboard_master())
+    { __P(activity_layer) = get_highest_layer(layer_state); }
+    return __P(activity_layer);
+}
+
+void __P(activity_layer_set)(__P(layer_e) layer)
+{
+    __P(activity_layer) = layer;
+}
+
+__P(layer_e) __P(activity_layer_get)()
+{
+    return __P(activity_layer);
 }
 
 

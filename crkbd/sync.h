@@ -13,11 +13,12 @@
 // ============================ Data Structures ============================= //
 // A struct representing several different flags to help with synchronizing
 // information between the two sides of the keyboard.
-typedef struct __P(sync_flags)
+typedef struct __P(sync_data)
 {
-    uint8_t capslock_enabled:1;
-    uint8_t _unused:7;
-} __P(sync_flags_t);
+    uint8_t capslock_enabled:1;     // flag - whether or not caps lock is on
+    uint8_t layer:4;                // current layer value
+    uint8_t _unused:3;
+} __P(sync_data_t);
 
 // This struct contains all data sent from the primary side of the keyboard to
 // the secondary side.
@@ -25,7 +26,7 @@ typedef struct __P(sync_p2s)
 {
     uint8_t mods;                   // bit flags from get_mods() (modifier keys)
     uint32_t activity_timer;        // current keyboard activity timer value
-    __P(sync_flags_t) flags;        // custom flags for my code to use
+    __P(sync_data_t) data;          // custom flags/data for my code to use
 } __P(sync_p2s_t);
 
 // This struct contains all data sent from the secondary side of the keyboard
